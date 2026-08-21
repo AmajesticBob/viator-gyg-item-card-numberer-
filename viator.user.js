@@ -2,7 +2,7 @@
 // @name         Viator Enhanced: Numbering
 // @namespace    http://tampermonkey.net/
 // @version      2.0
-// @description  Adds global numbering to cards and turns pagination into an auto-loading infinite scroll.
+// @description  Adds global numbering 
 // @author       Assistant
 // @match        https://www.viator.com/*
 // @match https://www.viator.com/searchResults/all/*
