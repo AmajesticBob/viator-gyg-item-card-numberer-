@@ -5,6 +5,7 @@
 // @description  Adds global numbering to cards and turns pagination into an auto-loading infinite scroll.
 // @author       Assistant
 // @match        https://www.viator.com/*
+// @match https://www.viator.com/searchResults/all/*
 // @grant        none
 // ==/UserScript==
 
