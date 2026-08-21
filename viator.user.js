@@ -5,7 +5,7 @@
 // @description  Shows the position number for each activity on Viator search results
 // @author       Assistant
 // @match        https://www.viator.com/*
-// @grant        none
+// @grant        n
 // @run-at       document-idle
 // ==/UserScript==
 
