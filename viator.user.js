@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Viator Product Grid Numbering
 // @namespace    http://tampermonkey.net/
-// @version      1.5
-// @description  Shows the position number for each activity on Viator search results
+// @version      1.6
+// @description  Shows position number on Viator search result cards
 // @author       Assistant
 // @match        https://www.viator.com/*
 // @grant        none
@@ -12,55 +12,53 @@
 (function() {
     'use strict';
 
-    // Broadened selector: matches either the old automation attribute or any product detail link
-    const CARD_SELECTOR = 'a[data-automation="srp-product-list-card-link"], a[href*="/tours/"]';
-
     const updateNumbers = () => {
-        const rawLinks = document.querySelectorAll(CARD_SELECTOR);
-
-        // Filter out non-card navigation links (e.g., reviews, breadcrumbs, footers)
-        const validCards = Array.from(rawLinks).filter(el => {
-            const hasImg = el.querySelector('img');
-            const isCardSized = el.offsetWidth > 150 && el.offsetHeight > 150;
-            return hasImg && isCardSized;
+        // Find links that contain product titles and review stars or price labels
+        const links = Array.from(document.querySelectorAll('a[href]')).filter(a => {
+            const hasReviewOrPrice = a.innerText.includes('Free Cancellation') ||
+                                     a.innerText.includes('from $') ||
+                                     /\d\.\d\s*\(\d+/.test(a.innerText);
+            const hasImage = a.querySelector('img') !== null;
+            return hasReviewOrPrice && hasImage && a.offsetHeight > 180;
         });
 
-        validCards.forEach((product, index) => {
+        // Deduplicate in case nested anchors exist
+        const cards = [...new Set(links)];
+
+        cards.forEach((card, index) => {
             const currentPosition = index + 1;
-            
-            // Prefer placing on the first container wrapping the image, otherwise fallback to the anchor
-            const img = product.querySelector('img');
-            const target = img ? img.parentElement : product;
-            let badge = target.querySelector('.tm-viator-number');
+
+            // Ensure the main card element establishes a positioning context
+            if (window.getComputedStyle(card).position === 'static') {
+                card.style.setProperty('position', 'relative', 'important');
+            }
+
+            let badge = card.querySelector(':scope > .tm-viator-number');
 
             if (!badge) {
-                if (window.getComputedStyle(target).position === 'static') {
-                    target.style.setProperty('position', 'relative', 'important');
-                }
-
                 badge = document.createElement('div');
                 badge.className = 'tm-viator-number';
 
                 Object.assign(badge.style, {
                     position: 'absolute',
-                    top: '12px',
-                    left: '12px',
+                    top: '10px',
+                    left: '10px',
                     backgroundColor: 'rgba(0, 0, 0, 0.85)',
                     color: '#ffffff',
-                    minWidth: '28px',
-                    height: '28px',
-                    lineHeight: '28px',
+                    minWidth: '30px',
+                    height: '30px',
+                    lineHeight: '30px',
                     textAlign: 'center',
                     borderRadius: '50%',
-                    fontSize: '14px',
+                    fontSize: '15px',
                     fontWeight: '800',
-                    zIndex: '9999',
+                    zIndex: '10000',
                     pointerEvents: 'none',
-                    boxShadow: '0 2px 6px rgba(0, 0, 0, 0.4)',
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.5)',
                     border: '2px solid #ffffff'
                 });
 
-                target.appendChild(badge);
+                card.appendChild(badge);
             }
 
             if (badge.textContent !== String(currentPosition)) {
@@ -69,16 +67,6 @@
         });
     };
 
-    let debounceTimer = null;
-    const debouncedUpdate = () => {
-        if (debounceTimer) clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(updateNumbers, 200);
-    };
-
-    updateNumbers();
-
-    const observer = new MutationObserver(debouncedUpdate);
-    observer.observe(document.body, { childList: true, subtree: true });
-
-    window.addEventListener('scroll', debouncedUpdate, { passive: true });
+    // Run periodically to catch dynamic hydration / filter updates
+    setInterval(updateNumbers, 500);
 })();
