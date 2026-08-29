@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Viator Product Grid Numbering
 // @namespace    http://tampermonkey.net/
-// @version      1.6
-// @description  Shows position number on Viator search result cards
+// @version      1.7
+// @description  Shows position number on Viator search result cards across multiple pages
 // @author       Assistant
 // @match        https://www.viator.com/*
 // @grant        none
@@ -12,8 +12,33 @@
 (function() {
     'use strict';
 
+    const ITEMS_PER_PAGE = 24;
+
+    // Detect the current page number from URL or DOM pagination
+    const getCurrentPage = () => {
+        // 1. Check URL parameters (e.g., ?page=2 or &page=2)
+        const urlParams = new URLSearchParams(window.location.search);
+        const pageParam = urlParams.get('page') || urlParams.get('pageNumber');
+        if (pageParam && !isNaN(pageParam)) {
+            return parseInt(pageParam, 10);
+        }
+
+        // 2. Fallback: inspect the active page element in the bottom pagination control
+        const activePaginationBtn = document.querySelector(
+            'nav[aria-label*="pagination"] [aria-current="page"], [data-automation*="pagination"] [aria-current="page"], .pagination .active'
+        );
+        if (activePaginationBtn && !isNaN(activePaginationBtn.textContent.trim())) {
+            return parseInt(activePaginationBtn.textContent.trim(), 10);
+        }
+
+        return 1;
+    };
+
     const updateNumbers = () => {
-        // Find links that contain product titles and review stars or price labels
+        const currentPage = getCurrentPage();
+        const pageOffset = (currentPage - 1) * ITEMS_PER_PAGE;
+
+        // Target valid product cards
         const links = Array.from(document.querySelectorAll('a[href]')).filter(a => {
             const hasReviewOrPrice = a.innerText.includes('Free Cancellation') ||
                                      a.innerText.includes('from $') ||
@@ -22,13 +47,11 @@
             return hasReviewOrPrice && hasImage && a.offsetHeight > 180;
         });
 
-        // Deduplicate in case nested anchors exist
         const cards = [...new Set(links)];
 
         cards.forEach((card, index) => {
-            const currentPosition = index + 1;
+            const currentPosition = pageOffset + index + 1;
 
-            // Ensure the main card element establishes a positioning context
             if (window.getComputedStyle(card).position === 'static') {
                 card.style.setProperty('position', 'relative', 'important');
             }
@@ -67,6 +90,5 @@
         });
     };
 
-    // Run periodically to catch dynamic hydration / filter updates
     setInterval(updateNumbers, 500);
 })();
