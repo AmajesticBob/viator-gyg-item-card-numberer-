@@ -16,7 +16,7 @@ Make sure you have the [Tampermonkey](https://www.tampermonkey.net/) extension i
 
 [![Install Viator Script](https://img.shields.io/badge/Install-Viator_Script-008080?style=for-the-badge&logo=tampermonkey)](https://github.com/AmajesticBob/viator-gyg-item-card-numberer-/raw/refs/heads/main/viator.user.js)
 [![Install GYG Script](https://img.shields.io/badge/Install-GYG_Script-008080?style=for-the-badge&logo=tampermonkey)](https://github.com/AmajesticBob/viator-gyg-item-card-numberer-/raw/refs/heads/main/gyg.user.js)
-[![Install GYG Data scraper](https://img.shields.io/badge/Install-GYG-Extractor-Script-008080?style=for-the-badge&logo=tampermonkey)](https://github.com/AmajesticBob/viator-gyg-item-card-numberer-/raw/refs/heads/main/gyg_extract.user.js))
+[![Install GYG Data scraper](https://img.shields.io/badge/Install-GYG-Script-008080?style=for-the-badge&logo=tampermonkey)](https://github.com/AmajesticBob/viator-gyg-item-card-numberer-/raw/refs/heads/main/gyg_extract.user.js))
 
 ---
 
