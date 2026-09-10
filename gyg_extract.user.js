@@ -1,9 +1,9 @@
 
 // ==UserScript==
-// @name         Product Data Exporter with Links
+// @name         Product Data Exporter - Final
 // @namespace    http://tampermonkey.net/
-// @version      1.1
-// @description  Load all items and export product data (including links) to CSV
+// @version      1.2
+// @description  Load all items and export product data with List Order before Link
 // @author       Assistant
 // @match        *://*.getyourguide.com/*
 // @grant        none
@@ -63,16 +63,14 @@
             const stars = card.querySelector('[id$="-polished-rating-text"]')?.innerText?.trim() || 'N/A';
             const reviews = card.querySelector('[id$="-polished-review-description"]')?.innerText?.trim().replace(/[()]/g, '') || 'N/A';
             const price = card.querySelector('[id$="-polished-price-start-v2"], [id$="-polished-price-base-v2"]')?.innerText?.trim() || 'N/A';
-
-            // Extract the link from the parent <a> tag
             const link = card.closest('a')?.href || 'N/A';
-
-            return { name, stars, reviews, price, link, order: index + 1 };
+            
+            return { name, stars, reviews, price, order: index + 1, link };
         });
 
-        const headers = ['Name', 'Stars', 'Review Count', 'Price', 'Link', 'List Order'];
-        const csvContent = [headers.join(','), ...results.map(row =>
-            [`"${row.name.replace(/"/g, '""')}"`, `"${row.stars}"`, `"${row.reviews}"`, `"${row.price}"`, `"${row.link}"`, `"${row.order}"`].join(',')
+        const headers = ['Name', 'Stars', 'Review Count', 'Price', 'List Order', 'Link'];
+        const csvContent = [headers.join(','), ...results.map(row => 
+            [`"${row.name.replace(/"/g, '""')}"`, `"${row.stars}"`, `"${row.reviews}"`, `"${row.price}"`, `"${row.order}"`, `"${row.link}"`].join(',')
         )].join('\n');
 
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
